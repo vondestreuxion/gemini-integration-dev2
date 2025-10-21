@@ -43,7 +43,7 @@ app.post('/generate-text', async (req, res) => {
     if (!prompt || typeof prompt !== 'string') {
         res.status(400).json({
             success: false, 
-            message: 'Prompt is required and must be a string!',
+            message: "Prompt is required and must be a string!",
             data: null
         });
         return;
@@ -56,7 +56,7 @@ app.post('/generate-text', async (req, res) => {
                 { role: 'user', parts: [{ text: prompt }] }
             ],
             config: {
-                systemInstruction: 'You are a helpful pirate assistant',
+                systemInstruction: "You are a helpful pirate assistant",
                 temperature: 0.9,
                 maxOutputTokens: 1024
             }
@@ -64,14 +64,14 @@ app.post('/generate-text', async (req, res) => {
         
         res.status(200).json({ 
             success: true,
-            message: 'Text generated successfully!',
+            message: "Text generated successfully!",
             data: response.text
         });
     } catch (e) {
         console.log(e);
         res.status(500).json({
             success: false,
-            message: 'Something went wrong!',
+            message: "Something went wrong!",
             data: null
        });
     }
@@ -81,7 +81,7 @@ app.post('/generate-text', async (req, res) => {
 
 app.post("/api/chat",  async (req, res) => {
     const { conversation } = req.body;
-    console.log(prompt);
+    console.log(conversation);
 
     try{
         //check convo for array
@@ -102,9 +102,9 @@ app.post("/api/chat",  async (req, res) => {
                 return;
             }
 
-            constkeys = Object.keys(message);
+            const keys = Object.keys(message);
             const objectHasValidKeys = keys.every(key => 
-                ['text', 'role'].includes(key));
+                ["text", "role"].includes(key));
 
             // 2nd condition -- message must have valid structure        
             if (keys.length !== 2 || !objectHasValidKeys) {
@@ -121,7 +121,7 @@ app.post("/api/chat",  async (req, res) => {
             }
 
             //3rd condition -- valid text
-            if (text || typeof text !== 'string') {
+            if (!text || typeof text !== "string") {
                 messageisValid = false;
                 return;
             }
@@ -131,16 +131,15 @@ app.post("/api/chat",  async (req, res) => {
                 throw new Error("Invalid message structure!");
 
             }
-            const contents = conversation.map((message) => {
-                role,
-                parts; [{ text }]
+            const contents = conversation.map(({text, role}) => {
+                return {role, parts: [{ text }]};
             });
 
             const response = await ai.models.generateContent({
                 model: GEMINI_MODEL, 
                 contents,
                 config: {
-                    systemInstruction: 'You are a helpful pirate assistant',
+                    systemInstruction: "You are a helpful pirate assistant",
                     temperature: 0.9,
                     maxOutputTokens: 1024
                 }
@@ -148,21 +147,21 @@ app.post("/api/chat",  async (req, res) => {
 
             res.status(200).json({
                 success:true,
-                message: 'Text generated successfully!',
+                message: "Text generated successfully!",
                 data: response.text
             });
-    } catch (e) {
-        res.status(500).json({
-            success: false,
-            message: e.message,
-            data: null
-        })
+        } catch (e) {
+            res.status(500).json({
+                success: false,
+                message: e.message,
+                data: null
+            })
     }
 })
 
 app.listen(
     PORT, // Use the PORT constant defined earlier.
     () => {
-        console.log(`Server is running on port ${PORT}`);
+        console.log("Server is running on port ${PORT}");
     }
 );
