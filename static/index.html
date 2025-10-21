@@ -7,9 +7,10 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div class="container">
+  <!-- FIX: The ID of this container now matches the CSS for proper layout. -->
+  <div id="chat-container">
     <h1>Gemini AI Chatbot</h1>
-    <div id="chat-box" class="chat-box"></div>
+    <div id="chat-box"></div>
     <form id="chat-form">
       <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" required />
       <button type="submit">Send</button>
