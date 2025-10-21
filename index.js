@@ -2,12 +2,28 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
+
+//import path/url package
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import 'dotenv/config';
+import { text } from "node:stream/consumers";
 
 const app = express();
 const upload = multer();
 
 const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+//initialize static directory
+app.use(
+    express.static(
+        path.join(__dirname, 'static'), //rootdirectory 
+    ),
+);
 
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -61,6 +77,88 @@ app.post('/generate-text', async (req, res) => {
     }
 
 });
+
+
+app.post("/api/chat",  async (req, res) => {
+    const { conversation } = req.body;
+    console.log(prompt);
+
+    try{
+        //check convo for array
+        if (!Array.isArray(conversation)) {
+            throw new Error("Conversation must be an array!");
+        }
+        let messageisValid = true;
+
+        if (conversation.length === 0) {
+            throw new Error("Conversation must have at least one message!");    
+        }
+
+        conversation.forEach((message) => {
+
+            // 1st condition -- message must be an object and not null
+            if (!message || typeof message !== 'object') {
+                messageisValid = false;
+                return;
+            }
+
+            constkeys = Object.keys(message);
+            const objectHasValidKeys = keys.every(key => 
+                ['text', 'role'].includes(key));
+
+            // 2nd condition -- message must have valid structure        
+            if (keys.length !== 2 || !objectHasValidKeys) {
+                messageisValid = false;
+                return;
+            }
+
+            const { text, role } = message;
+
+            //3rd condition -- valid role
+            if (!["model", "user"].includes(role)) {
+                messageisValid = false;
+                return;
+            }
+
+            //3rd condition -- valid text
+            if (text || typeof text !== 'string') {
+                messageisValid = false;
+                return;
+            }
+        
+            })
+            if (!messageisValid) {
+                throw new Error("Invalid message structure!");
+
+            }
+            const contents = conversation.map((message) => {
+                role,
+                parts; [{ text }]
+            });
+
+            const response = await ai.models.generateContent({
+                model: GEMINI_MODEL, 
+                contents,
+                config: {
+                    systemInstruction: 'You are a helpful pirate assistant',
+                    temperature: 0.9,
+                    maxOutputTokens: 1024
+                }
+            });
+
+            res.status(200).json({
+                success:true,
+                message: 'Text generated successfully!',
+                data: response.text
+            });
+    } catch (e) {
+        res.status(500).json({
+            success: false,
+            message: e.message,
+            data: null
+        })
+    }
+})
 
 app.listen(
     PORT, // Use the PORT constant defined earlier.
